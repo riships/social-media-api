@@ -5,6 +5,7 @@ const { Schema } = mongoose
 
 
 const userSchema = new Schema({
+    file: { type: Object },
     name: { type: String, minLength: [5, 'Must be at least , got {VALUE}'], required: true },
     email: { type: String, unique: true, required: 'Email address is required', validate: [validator.isEmail, 'Invalid email'] },
     gender: { type: String, enum: { values: ["Male", "Female", "Other"], message: '{VALUE} is not supported' } },

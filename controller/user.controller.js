@@ -3,12 +3,14 @@ import User from "../model/user.model.js";
 import jwt from 'jsonwebtoken';
 import { myConfig } from "../config/config.js";
 import { Session } from "../model/session.model.js";
+import mongoose from "mongoose";
 
 export const userSignUp = async (req, res) => {
     const { name, email, gender, password } = req.body;
+    const { file } = req
 
     try {
-        const newUser = new User({ name, email, gender, password });  // Create a new User object        
+        const newUser = new User({ file, name, email, gender, password });  // Create a new User object        
         // Insert the user object into the 'users' collection
         const user = await newUser.save();
         if (user) {
@@ -46,8 +48,6 @@ export const userLogin = async (req, res) => {
             ipAddress: ipAddress,
             tokenId: token
         }).save()
-        console.log(session);
-        
         res.cookie("sessionId", session._id, { maxAge: 60000, httpOnly: true })
         res.status(200).send({ message: "Login successful", sessionId: session._id });
 
@@ -78,6 +78,39 @@ export const getAllUsers = async (req, res) => {
             return res.status(404).send("User not Found!")
         }
         res.status(200).send({ success: true, users: user })
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message })
+    }
+}
+
+
+export const logOut = async (req, res) => {
+    try {
+        let sessionId = req.cookies.sessionId
+        let session = await Session.findByIdAndDelete(sessionId);
+
+        if (!session) {
+            return res.status(404).send({ message: "Error in logout" })
+        }
+        res.cookie("sessionId", null, { maxAge: Date.now(), httpOnly: true })
+        res.status(200).send({ success: true, message: "Logout Successfully" })
+
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message })
+    }
+}
+
+
+export const logOutAllDevices = async (req, res) => {
+    try {
+        let sessionId = req.cookies.sessionId
+        let session = await Session.findById(sessionId);
+        let logOutAllDevices = await Session.deleteMany({ userId: session.userId })
+
+        if (!logOutAllDevices) {
+            return res.status(404).send({ message: "Error in logout" })
+        }
+        res.status(200).send({ success: true, message: "Logout Successfully" })
     } catch (error) {
         res.status(500).send({ success: false, message: error.message })
     }
