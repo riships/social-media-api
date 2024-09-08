@@ -3,7 +3,6 @@ import User from "../model/user.model.js";
 import jwt from 'jsonwebtoken';
 import { myConfig } from "../config/config.js";
 import { Session } from "../model/session.model.js";
-import mongoose from "mongoose";
 
 export const userSignUp = async (req, res) => {
     const { name, email, gender, password } = req.body;
@@ -60,7 +59,7 @@ export const userLogin = async (req, res) => {
 export const getUserById = async (req, res) => {
     let userId = req.params.userId
     try {
-        let user = await User.findOne({ _id: userId })
+        let user = await User.findOne({ _id: userId }).select('-password')
         if (!user) {
             return res.status(404).send("User not Found!")
         }
@@ -73,7 +72,7 @@ export const getUserById = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
     try {
-        let user = await User.find({})
+        let user = await User.find({}).select('-password')
         if (!user) {
             return res.status(404).send("User not Found!")
         }
@@ -113,5 +112,20 @@ export const logOutAllDevices = async (req, res) => {
         res.status(200).send({ success: true, message: "Logout Successfully" })
     } catch (error) {
         res.status(500).send({ success: false, message: error.message })
+    }
+}
+
+
+export const findAndUpdateUser = async (req, res) => {
+    let userId = req.params.userId
+    let { name, email, gender } = req.body
+    try {
+        let updatedUser = await User.findByIdAndUpdate(userId, { name, email, gender }, { new: true }).select('-password')
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        return res.status(200).json(updatedUser);
+    } catch (error) {
+        return res.status(500).json({ message: "Server error", error: error.message });
     }
 }
