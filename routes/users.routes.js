@@ -1,5 +1,12 @@
 import express from "express";
-import { findAndUpdateUser, getAllUsers, getUserById, logOut, logOutAllDevices, userLogin, userSignUp } from "../controller/user.controller.js";
+import { 
+    findAndUpdateUser, 
+    getAllUsers, 
+    getUserById, 
+    logOut, 
+    logOutAllDevices, 
+    userLogin, 
+    userSignUp } from "../controller/users.controller.js";
 import { upload } from "../middlewares/multer.middelware.js";
 var router = express.Router();
 

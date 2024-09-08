@@ -3,7 +3,8 @@ import cookieParser from 'cookie-parser';
 import cors from "cors";
 import { myConfig } from './config/config.js';
 import connectMongoDb from './config/db.js';
-import userRouter from './routes/route.user.js'
+import userRouter from './routes/users.routes.js'
+import postRouter from './routes/posts.routes.js'
 import expressUseragent from 'express-useragent';
 
 const app = express()
@@ -18,6 +19,7 @@ app.use(expressUseragent.express())
 
 app.use('/api/users', userRouter)
 
+app.use('/api/posts', postRouter)
 
 
 const port = myConfig.PORT
