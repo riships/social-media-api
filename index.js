@@ -4,6 +4,7 @@ import cors from "cors";
 import { myConfig } from './config/config.js';
 import connectMongoDb from './config/db.js';
 import userRouter from './routes/route.user.js'
+import expressUseragent from 'express-useragent';
 
 const app = express()
 connectMongoDb()
@@ -12,10 +13,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser())
 app.use(cors({
     origin: "*",
-    optionsSuccessStatus: 200
 }))
+app.use(expressUseragent.express())
 
-app.use('/api/user', userRouter)
+app.use('/api/users', userRouter)
 
 
 
