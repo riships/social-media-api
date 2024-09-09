@@ -45,7 +45,7 @@ export const userLogin = async (req, res) => {
             ipAddress: ipAddress,
             tokenId: token
         }).save()
-        res.cookie("sessionId", session._id, { maxAge: 60000, httpOnly: true })
+        res.cookie("sessionId", session._id, { maxAge: 3600000, httpOnly: true })
         res.status(200).send({ message: "Login successful", sessionId: session._id });
 
     } catch (error) {
