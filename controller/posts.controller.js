@@ -8,11 +8,10 @@ import User from "../model/user.model.js";
 export const createPost = async (req, res) => {
     const { content, visibility, tags } = req.body;
     const newLocation = await getLocation();
-    const { sessionId } = req.cookies;
+    const { userId } = req.user;
     const { files } = req;
 
     try {
-        let { userId } = await Session.findById(sessionId)
         let createdPost = new Post({ author: userId, content, media: files, visibility, tags, location: newLocation });
         let post = await createdPost.save();
         if (!post) {
@@ -58,6 +57,20 @@ export const getUserPosts = async (req, res) => {
         let userPosts = await Post.find({ userId: userId });
         if (!userPosts) {
             return res.status(500).send({ success: false, message: "Posts not found for the user!" })
+        }
+        return res.status(200).send({ success: true, post: userPosts })
+    } catch (error) {
+        return res.status(500).send({ success: false, message: "Internal server error!", error: error.message })
+    }
+}
+
+
+export const deletePostById = async (req, res) => {
+    let { postId } = req.params;
+    try {
+        let userPosts = await Post.findByIdAndDelete(postId);
+        if (!userPosts) {
+            return res.status(500).send({ success: false, message: "Posts not found!" })
         }
         return res.status(200).send({ success: true, post: userPosts })
     } catch (error) {

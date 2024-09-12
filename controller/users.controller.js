@@ -3,6 +3,7 @@ import User from "../model/user.model.js";
 import jwt from 'jsonwebtoken';
 import { myConfig } from "../config/config.js";
 import { Session } from "../model/session.model.js";
+import { v4 as uuid4 } from 'uuid'
 
 export const userSignUp = async (req, res) => {
     const { name, email, gender, password } = req.body;
@@ -31,22 +32,24 @@ export const userLogin = async (req, res) => {
     }, {})
     try {
         let user = await User.findOne({ email: email });
+
         if (!user) {
-            res.status(404).send({ message: "Invalid Email or Passwor" })
+            res.status(404).send({ message: "User Not Found!" })
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).send({ message: "Invalid Email or Password" });
         }
-        let token = jwt.sign({ name: user.name, id: user._id }, myConfig.SECREKEY, { expiresIn: '1h' });
+        let token = jwt.sign({ userName: user.name, userId: user._id, sessionId: uuid4() }, myConfig.SECREKEY, { expiresIn: '1h' });
         const session = await new Session({
             userId: user._id,
             deviceInfo: JSON.stringify(ua),
             ipAddress: ipAddress,
-            tokenId: token
+            sessionId: uuid4()
         }).save()
-        res.cookie("sessionId", session._id, { maxAge: 3600000, httpOnly: true })
-        res.status(200).send({ message: "Login successful", sessionId: session._id });
+        await User.findByIdAndUpdate(user._id, { $push: { activeSessios: session._id } })
+        res.cookie("sessionId", token, { maxAge: 3600000, httpOnly: true })
+        res.status(200).send({ message: "Login successful", sessionId: token });
 
     } catch (error) {
         return res.status(500).send({ message: error.message });
@@ -99,8 +102,8 @@ export const logOut = async (req, res) => {
 
 
 export const logOutAllDevices = async (req, res) => {
+    
     try {
-        let sessionId = req.cookies.sessionId
         let session = await Session.findById(sessionId);
         let logOutAllDevices = await Session.deleteMany({ userId: session.userId })
 
@@ -115,7 +118,7 @@ export const logOutAllDevices = async (req, res) => {
 
 
 export const findAndUpdateUser = async (req, res) => {
-    let userId = req.params.userId
+    let { userId } = req.user
     let { name, email, gender } = req.body
     try {
         let updatedUser = await User.findByIdAndUpdate(userId, { name, email, gender }, { new: true }).select('-password')

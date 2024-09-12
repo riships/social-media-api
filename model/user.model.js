@@ -10,7 +10,8 @@ const userSchema = new Schema({
     email: { type: String, unique: true, required: 'Email address is required', validate: [validator.isEmail, 'Invalid email'] },
     gender: { type: String, enum: { values: ["Male", "Female", "Other"], message: '{VALUE} is not supported' } },
     password: { type: String, required: true, minLength: [9, 'Must be at least 9, got {VALUE}'] },
-    posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }]
+    posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
+    activeSessios: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Session' }]
 })
 
 
