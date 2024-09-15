@@ -13,6 +13,7 @@ export const userSignUp = async (req, res) => {
         const newUser = new User({ file, name, email, gender, password });  // Create a new User object        
         // Insert the user object into the 'users' collection
         const user = await newUser.save();
+
         if (!user) {
             return res.status(500).json({ message: 'Failed to sign up user.' });
         }
@@ -40,16 +41,17 @@ export const userLogin = async (req, res) => {
         if (!isMatch) {
             return res.status(400).send({ message: "Invalid Email or Password" });
         }
-        let token = jwt.sign({ userName: user.name, userId: user._id, sessionId: uuid4() }, myConfig.SECREKEY, { expiresIn: '1h' });
+        const sessionKey = uuid4();
         const session = await new Session({
             userId: user._id,
             deviceInfo: JSON.stringify(ua),
             ipAddress: ipAddress,
-            sessionId: uuid4()
-        }).save()
-        await User.findByIdAndUpdate(user._id, { $push: { activeSessios: session._id } })
-        res.cookie("sessionId", token, { maxAge: 3600000, httpOnly: true })
-        res.status(200).send({ message: "Login successful", sessionId: token });
+            sessionKey: sessionKey
+        }).save();
+        let token = jwt.sign({ userName: user.name, userId: user._id, sessionKey: sessionKey, sessionId: session._id }, myConfig.SECREKEY, { expiresIn: '1h' });
+        await User.findByIdAndUpdate(user._id, { $push: { activeSessios: session._id } });
+        res.cookie("token", token, { maxAge: 3600000, httpOnly: true })
+        res.status(200).send({ message: "Login successful", token: token });
 
     } catch (error) {
         return res.status(500).send({ message: error.message });
@@ -86,10 +88,15 @@ export const getAllUsers = async (req, res) => {
 
 export const logOut = async (req, res) => {
     try {
-        let sessionId = req.cookies.sessionId
-        let session = await Session.findByIdAndDelete(sessionId);
+        let { sessionId, userId } = req.user
 
+        let session = await Session.findByIdAndDelete(sessionId);
         if (!session) {
+            return res.status(404).send({ message: "Error in logout" })
+        }
+        // Remove session id from user's active session
+        let updatedActiveSession = await User.findByIdAndUpdate(userId, { $pull: { activeSessios: sessionId } });
+        if (!updatedActiveSession) {
             return res.status(404).send({ message: "Error in logout" })
         }
         res.cookie("sessionId", null, { maxAge: Date.now(), httpOnly: true })
@@ -102,12 +109,13 @@ export const logOut = async (req, res) => {
 
 
 export const logOutAllDevices = async (req, res) => {
-    
-    try {
-        let session = await Session.findById(sessionId);
-        let logOutAllDevices = await Session.deleteMany({ userId: session.userId })
+    const { userId } = req.user;
 
-        if (!logOutAllDevices) {
+    try {
+        const logOutAllDevices = await Session.deleteMany({ userId: userId });
+        const updateUserActiveSession = await User.findByIdAndUpdate(userId, { $set: { activeSessios: [] } })
+
+        if (!logOutAllDevices && !updateUserActiveSession) {
             return res.status(404).send({ message: "Error in logout" })
         }
         res.status(200).send({ success: true, message: "Logout Successfully" })

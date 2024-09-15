@@ -5,7 +5,7 @@ const sessionSchema = new mongoose.Schema({
     deviceInfo: String,
     ipAddress: Object,
     loginTime: { type: Date, default: Date.now },
-    sessionId: { type: String, required: true }
+    sessionKey: { type: String, required: true }
 });
 
 export const Session = mongoose.model('Session', sessionSchema, "sessions");

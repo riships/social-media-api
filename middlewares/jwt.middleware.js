@@ -1,14 +1,18 @@
 import jwt from 'jsonwebtoken';
 import { myConfig } from '../config/config.js';
+import { Session } from '../model/session.model.js';
 
 export const jsonWebToken = async (req, res, next) => {
     try {
-        const { sessionId } = req.cookies;
-        if (!sessionId) {
+        const { token } = req.cookies;
+
+        if (!token) {
             return res.status(401).json({ message: 'No token provided' });
         }
-        const userData = jwt.verify(sessionId, myConfig.SECREKEY);
-        req.user = userData;
+        const userData = jwt.verify(token, myConfig.SECREKEY);
+        const sessionAuth = await Session.findById(userData.sessionId);
+        const authenticated = sessionAuth.sessionKey === userData.sessionKey;
+        if (authenticated) req.user = userData;
 
         // Call next() to move to the next middleware or route handler
         next();

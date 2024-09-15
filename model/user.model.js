@@ -11,6 +11,7 @@ const userSchema = new Schema({
     gender: { type: String, enum: { values: ["Male", "Female", "Other"], message: '{VALUE} is not supported' } },
     password: { type: String, required: true, minLength: [9, 'Must be at least 9, got {VALUE}'] },
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LikePost' }],
     activeSessios: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Session' }]
 })
 
