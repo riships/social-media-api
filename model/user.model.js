@@ -4,6 +4,11 @@ import bcrypt from 'bcryptjs';
 const { Schema } = mongoose
 
 
+const FriendRequestSchema = new mongoose.Schema({
+    sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    status: { type: String, enum: ['Pending', 'Accepted', 'Rejected'], default: 'Pending' },
+});
+
 const userSchema = new Schema({
     file: { type: Object },
     name: { type: String, minLength: [5, 'Must be at least , got {VALUE}'], required: true },
@@ -12,7 +17,9 @@ const userSchema = new Schema({
     password: { type: String, required: true, minLength: [9, 'Must be at least 9, got {VALUE}'] },
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LikePost' }],
-    activeSessios: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Session' }]
+    activeSessios: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Session' }],
+    friendRequests: [FriendRequestSchema],
+    friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 })
 
 

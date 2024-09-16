@@ -6,6 +6,7 @@ import connectMongoDb from './config/db.js';
 import userRouter from './routes/users.routes.js'
 import postRouter from './routes/posts.routes.js'
 import likeRouter from './routes/likes.routes.js'
+import friendshipRouter from './routes/friendship.routes.js'
 import expressUseragent from 'express-useragent';
 
 const app = express()
@@ -18,11 +19,14 @@ app.use(cors({
 }))
 app.use(expressUseragent.express())
 
-app.use('/api/users', userRouter)
+app.use('/api/users', userRouter);
 
-app.use('/api/posts', postRouter)
+app.use('/api/posts', postRouter);
 
-app.use('/api/likes', likeRouter)
+app.use('/api/likes', likeRouter);
+
+app.use('/api/friends', friendshipRouter);
+
 
 const port = myConfig.PORT
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
