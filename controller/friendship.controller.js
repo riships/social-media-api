@@ -53,7 +53,7 @@ export const resToFriendRequest = async (req, res) => {
 
         const requestIndex = recipient.friendRequests.findIndex((req) => {
             return req.sender.toString() === friendId && req.status === 'Pending'
-        })        
+        })
 
         if (requestIndex === -1) {
             return res.status(400).json({ message: 'Friend request not found' });
@@ -81,5 +81,36 @@ export const resToFriendRequest = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({ success: false, error: error.message });
+    }
+}
+
+
+export const getFriends = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const userData = await User.findById(userId).populate('friends');
+        if (!userData.friends) {
+            return res.status(404).json({ message: "User didn't have friend!" });
+        }
+        return res.status(200).send({ success: true, friends: userData.friends})
+
+    } catch (error) {
+        return res.status(500).send({ success: false, error: error.message })
+    }
+}
+
+
+
+export const getPendingFriendRequests = async (req, res) => {
+    try {
+        const { userId } = req.user;
+        const userData = await User.findById(userId).populate('friendRequests');
+        if (!userData.friendRequests) {
+            return res.status(404).json({ message: "User didn't have friend requests!" });
+        }
+        return res.status(200).send({ success: true, friendRequests: userData.friendRequests })
+
+    } catch (error) {
+        return res.status(500).send({ success: false, error: error.message })
     }
 }
