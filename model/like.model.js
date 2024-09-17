@@ -2,12 +2,12 @@ import mongoose, { Schema } from "mongoose";
 
 const likePostSchema = new Schema({
     author: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true  // Fixing the typo
     },
     post: {
-        type: Schema.Types.ObjectId,  // Reference to the Post model
+        type: mongoose.Schema.Types.ObjectId,  // Reference to the Post model
         ref: 'Post',
         required: true
     }
