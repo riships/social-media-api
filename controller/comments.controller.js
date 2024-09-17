@@ -107,3 +107,46 @@ export const deleteComment = async (req, res) => {
         })
     }
 }
+
+
+
+
+export const updateComment = async (req, res) => {
+    try {
+        const { userId } = req.user;
+        const { commentId } = req.params;
+        const { content } = req.body;
+
+        if (!userId) {
+            return res.status(404).send({
+                success: false,
+                message: "You are not authorize to update this comment!"
+            })
+        }
+
+        const user = await User.findById(userId);
+        if (user._id.toString() === userId.toString) {
+            return res.status(404).send({
+                success: false,
+                message: "You are not authorize to update this comment!"
+            })
+        }
+        const updatedComment = await PostComments.findByIdAndUpdate(commentId, { content: content });
+        if (!updatedComment) {
+            return res.status(500).send({
+                success: false,
+                message: "Error in updating comment!"
+            })
+        }
+        return res.status(200).send({
+            success: true,
+            message: "Comment updated successfully.",
+            comment: updatedComment
+        })
+    } catch (error) {
+        return res.status(500).send({
+            success: false,
+            error: error.message
+        })
+    }
+}
