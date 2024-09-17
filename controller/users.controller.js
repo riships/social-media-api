@@ -8,7 +8,6 @@ import { v4 as uuid4 } from 'uuid'
 export const userSignUp = async (req, res) => {
     const { name, email, gender, password } = req.body;
     const { file } = req
-
     try {
         const newUser = new User({ file, name, email, gender, password });  // Create a new User object        
         // Insert the user object into the 'users' collection
@@ -25,6 +24,7 @@ export const userSignUp = async (req, res) => {
 
 export const userLogin = async (req, res) => {
     const { email, password } = req.body
+    
     const deviceInfo = req.useragent;
     const ipAddress = req.ip;
     let ua = Object.keys(deviceInfo).filter(key => deviceInfo[key] != false).reduce((result, key) => {
@@ -38,6 +38,7 @@ export const userLogin = async (req, res) => {
             res.status(404).send({ message: "User Not Found!" })
         }
         const isMatch = await bcrypt.compare(password, user.password);
+        
         if (!isMatch) {
             return res.status(400).send({ message: "Invalid Email or Password" });
         }
