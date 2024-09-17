@@ -7,6 +7,7 @@ import userRouter from './routes/users.routes.js'
 import postRouter from './routes/posts.routes.js'
 import likeRouter from './routes/likes.routes.js'
 import friendshipRouter from './routes/friendship.routes.js'
+import commentsRouter from './routes/comments.routes.js'
 import expressUseragent from 'express-useragent';
 
 const app = express()
@@ -27,6 +28,7 @@ app.use('/api/likes', likeRouter);
 
 app.use('/api/friends', friendshipRouter);
 
+app.use('/api/comments', commentsRouter);
 
 const port = myConfig.PORT
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))

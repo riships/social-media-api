@@ -1,4 +1,6 @@
-const commentsSchema = new Schema({
+import mongoose, { Schema } from "mongoose";
+
+const commentsSchema = new mongoose.Schema({
     commenter: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -12,7 +14,7 @@ const commentsSchema = new Schema({
     content: {
         type: String,
         trim: true,
-        minLength: [6, 'Comment should have a minimum of 6 characters'],
+        minLength: [6, 'Comment should have a minimum of 15 characters'],
         required: [true, "Comment is required, it can't be blank"]
     },
     createdAt: {
@@ -24,4 +26,5 @@ const commentsSchema = new Schema({
     }
 }, { timestamps: true });
 
-export const PostComments = model('PostComments', commentsSchema, 'Comments');
+const PostComments = mongoose.model('PostComments', commentsSchema, 'Comments');
+export default PostComments;

@@ -17,6 +17,7 @@ const userSchema = new Schema({
     password: { type: String, required: true, minLength: [9, 'Must be at least 9, got {VALUE}'] },
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LikePost' }],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'PostComments' }],
     activeSessios: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Session' }],
     friendRequests: [FriendRequestSchema],
     friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
