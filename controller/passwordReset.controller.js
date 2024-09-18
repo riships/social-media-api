@@ -63,7 +63,7 @@ export const otpVeify = async (req, res) => {
 
         if (user[0].otp === otp.toString() && new Date(user[0].otpExpiry) > new Date()) {
             return res.status(200).send({ suceess: true, message: "Otp Verified successfully." })
-        } 
+        }
         else {
             return res.status(400).send({ suceess: false, message: "The OTP has expired." })
         }
@@ -95,9 +95,9 @@ export const resetPassword = async (req, res) => {
         }
 
         let isVerified = false
-        
-        
-        if (user[0].otp === otp.toString() && user[0].otpExpiry > Date.now()) {
+
+
+        if (user[0].otp === otp.toString() && new Date(user[0].otpExpiry) > new Date()) {
             isVerified = true
         }
         if (isVerified) {
@@ -105,14 +105,16 @@ export const resetPassword = async (req, res) => {
             const hashedPassword = await bcrypt.hash(newPassword, salt);
             await User.findByIdAndUpdate(user[0]._id, { password: hashedPassword })
 
+        } else {
+            return res.status(400).send({ suceess: false, message: "The OTP has expired." })
         }
 
         return res.status(201).send({
             suceess: true,
             message: `Password updated Successfully.`
-        })  
+        })
 
-        
+
     } catch (error) {
         return res.status(500).send({
             suceess: false,
