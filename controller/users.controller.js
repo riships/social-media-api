@@ -6,7 +6,7 @@ import { Session } from "../model/session.model.js";
 import { v4 as uuid4 } from 'uuid'
 
 export const userSignUp = async (req, res) => {
-    
+
     try {
         const { name, email, gender, password } = req.body;
         const { file } = req
@@ -134,11 +134,12 @@ export const findAndUpdateUser = async (req, res) => {
     try {
         let { userId } = req.user
         let { name, email, gender } = req.body
+        let { file } = req
         if (!userId) {
             return res.status(400).json({ message: "Login to update details" });
         }
 
-        let updatedUser = await User.findByIdAndUpdate(userId, { name, email, gender }, { new: true }).select('-password')
+        let updatedUser = await User.findByIdAndUpdate(userId, { name, email, gender, file }, { new: true }).select('-password')
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found" });
         }

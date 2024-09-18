@@ -25,7 +25,7 @@ router.post("/logout", jsonWebToken, logOut);
 
 router.post("/logout-all-devices", jsonWebToken, logOutAllDevices);
 
-router.put("/update-details/:userId", findAndUpdateUser);
+router.put("/update-details/:userId", upload.single('file'), findAndUpdateUser);
 
 
 
