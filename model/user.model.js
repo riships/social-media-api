@@ -22,9 +22,9 @@ const userSchema = new Schema({
     friendRequests: [FriendRequestSchema],
     friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     // otp verificatio part
-    otp: { type: String, minLength: [4, "Otp should have 4 digits minimum!"] },
-    otpExpiry: { type: Date, expires: 60 * 5 }
-})
+    otp: String,
+    otpExpiry: Date
+}, { timestamps: true });
 
 
 userSchema.pre('save', function (next) {
