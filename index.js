@@ -10,6 +10,8 @@ import friendshipRouter from './routes/friendship.routes.js'
 import commentsRouter from './routes/comments.routes.js'
 import otpVerification from './routes/passReset.routes.js'
 import expressUseragent from 'express-useragent';
+import ErrorHandler from './utils/errorHandler.js';
+import logger from './middlewares/logger.middelware.js';
 
 const app = express()
 connectMongoDb()
@@ -32,6 +34,33 @@ app.use('/api/friends', friendshipRouter);
 app.use('/api/comments', commentsRouter);
 
 app.use('/api/otp', otpVerification);
+
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Unhandled Rejection:', {
+        reason: reason.message,
+        promise: promise.resolve,
+        timestamp: new Date().toISOString()
+    });
+
+    process.exit(1); // Exit the process with failure code
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+    logger.error('Uncaught Exception:', {
+        message: err.message,
+        stack: err.stack,
+        timestamp: new Date().toISOString()
+    });
+    process.exit(1); // Exit the process with failure code
+});
+
+
+
+// custom error handler
+app.use(ErrorHandler);
 
 
 const port = myConfig.PORT

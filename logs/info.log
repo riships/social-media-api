@@ -1,0 +1,4 @@
+{"level":"error","message":"Unhandled Rejection:","reason":"Cannot destructure property 'userId' of 'req.user' as it is undefined.","timestamp":"18-09-2024 21:40:26"}
+{"level":"error","message":"Unhandled Rejection:","reason":"Cannot destructure property 'userId' of 'req.user' as it is undefined.","timestamp":"18-09-2024 21:47:27"}
+{"level":"error","message":"Unhandled Rejection:","reason":"Cannot destructure property 'userId' of 'req.user' as it is undefined.","timestamp":"18-09-2024 21:48:46"}
+{"level":"error","message":"Unhandled Rejection:","reason":"Cannot destructure property 'userId' of 'req.user' as it is undefined.","timestamp":"18-09-2024 21:49:13"}

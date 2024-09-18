@@ -6,12 +6,11 @@ import User from "../model/user.model.js";
 
 
 export const createPost = async (req, res) => {
-    const { content, visibility, tags } = req.body;
-    const newLocation = await getLocation();
-    const { userId } = req.user;
-    const { files } = req;
-
     try {
+        const { content, visibility, tags } = req.body;
+        const newLocation = await getLocation();
+        const { userId } = req.user;
+        const { files } = req;
         let createdPost = new Post({ author: userId, content, media: files, visibility, tags, location: newLocation });
         let post = await createdPost.save();
         if (!post) {
@@ -39,8 +38,8 @@ export const getAllPosts = async (req, res) => {
 
 
 export const getPostById = async (req, res) => {
-    let { postId } = req.params
     try {
+        let { postId } = req.params
         let post = await Post.findById(postId).populate("likes", "comments");
         if (!post) {
             return res.status(500).send({ success: false, message: "Post not found!" })
@@ -52,8 +51,8 @@ export const getPostById = async (req, res) => {
 }
 
 export const getUserPosts = async (req, res) => {
-    let { userId } = req.params
     try {
+        let { userId } = req.params
         let userPosts = await Post.find({ userId: userId });
         if (!userPosts) {
             return res.status(500).send({ success: false, message: "Posts not found for the user!" })
@@ -66,8 +65,8 @@ export const getUserPosts = async (req, res) => {
 
 
 export const deletePostById = async (req, res) => {
-    let { postId } = req.params;
     try {
+        let { postId } = req.params;
         let userPosts = await Post.findByIdAndDelete(postId);
         if (!userPosts) {
             return res.status(500).send({ success: false, message: "Posts not found!" })

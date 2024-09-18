@@ -18,7 +18,7 @@ const userSchema = new Schema({
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LikePost' }],
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'PostComments' }],
-    activeSessios: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Session' }],
+    activeSessions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Session' }],
     friendRequests: [FriendRequestSchema],
     friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     // otp verificatio part

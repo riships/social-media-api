@@ -6,9 +6,10 @@ import { Session } from "../model/session.model.js";
 import { v4 as uuid4 } from 'uuid'
 
 export const userSignUp = async (req, res) => {
-    const { name, email, gender, password } = req.body;
-    const { file } = req
+    
     try {
+        const { name, email, gender, password } = req.body;
+        const { file } = req
         const newUser = new User({ file, name, email, gender, password });  // Create a new User object        
         // Insert the user object into the 'users' collection
         const user = await newUser.save();
@@ -23,22 +24,22 @@ export const userSignUp = async (req, res) => {
 };
 
 export const userLogin = async (req, res) => {
-    const { email, password } = req.body
-    
-    const deviceInfo = req.useragent;
-    const ipAddress = req.ip;
-    let ua = Object.keys(deviceInfo).filter(key => deviceInfo[key] != false).reduce((result, key) => {
-        result[key] = deviceInfo[key]
-        return result;
-    }, {})
     try {
+        const { email, password } = req.body
+
+        const deviceInfo = req.useragent;
+        const ipAddress = req.ip;
+        let ua = Object.keys(deviceInfo).filter(key => deviceInfo[key] != false).reduce((result, key) => {
+            result[key] = deviceInfo[key]
+            return result;
+        }, {})
         let user = await User.findOne({ email: email });
 
         if (!user) {
-            res.status(404).send({ message: "User Not Found!" })
+            return res.status(404).send({ message: "User Not Found!" })
         }
         const isMatch = await bcrypt.compare(password, user.password);
-                
+
         if (!isMatch) {
             return res.status(400).send({ message: "Invalid Email or Password" });
         }
@@ -50,7 +51,7 @@ export const userLogin = async (req, res) => {
             sessionKey: sessionKey
         }).save();
         let token = jwt.sign({ userName: user.name, userId: user._id, sessionKey: sessionKey, sessionId: session._id }, myConfig.SECRETKEY, { expiresIn: '1h' });
-        await User.findByIdAndUpdate(user._id, { $push: { activeSessios: session._id } });
+        await User.findByIdAndUpdate(user._id, { $push: { activeSessions: session._id } });
         res.cookie("token", token, { maxAge: 3600000, httpOnly: true })
         res.status(200).send({ message: "Login successful", token: token });
 
@@ -61,8 +62,8 @@ export const userLogin = async (req, res) => {
 
 
 export const getUserById = async (req, res) => {
-    let userId = req.params.userId
     try {
+        let userId = req.params.userId
         let user = await User.findOne({ _id: userId }).select('-password').populate("posts")
         if (!user) {
             return res.status(404).send("User not Found!")
@@ -91,12 +92,16 @@ export const logOut = async (req, res) => {
     try {
         let { sessionId, userId } = req.user
 
+        if (!sessionId || !userId) {
+            return res.status(400).send({ message: "Invalid session or user ID" });
+        }
+
         let session = await Session.findByIdAndDelete(sessionId);
         if (!session) {
             return res.status(404).send({ message: "Error in logout" })
         }
         // Remove session id from user's active session
-        let updatedActiveSession = await User.findByIdAndUpdate(userId, { $pull: { activeSessios: sessionId } });
+        let updatedActiveSession = await User.findByIdAndUpdate(userId, { $pull: { activeSessions: sessionId } });
         if (!updatedActiveSession) {
             return res.status(404).send({ message: "Error in logout" })
         }
@@ -110,11 +115,10 @@ export const logOut = async (req, res) => {
 
 
 export const logOutAllDevices = async (req, res) => {
-    const { userId } = req.user;
-
     try {
+        const { userId } = req.user;
         const logOutAllDevices = await Session.deleteMany({ userId: userId });
-        const updateUserActiveSession = await User.findByIdAndUpdate(userId, { $set: { activeSessios: [] } })
+        const updateUserActiveSession = await User.findByIdAndUpdate(userId, { $set: { activeSessions: [] } })
 
         if (!logOutAllDevices && !updateUserActiveSession) {
             return res.status(404).send({ message: "Error in logout" })
@@ -127,9 +131,13 @@ export const logOutAllDevices = async (req, res) => {
 
 
 export const findAndUpdateUser = async (req, res) => {
-    let { userId } = req.user
-    let { name, email, gender } = req.body
     try {
+        let { userId } = req.user
+        let { name, email, gender } = req.body
+        if (!userId) {
+            return res.status(400).json({ message: "Login to update details" });
+        }
+
         let updatedUser = await User.findByIdAndUpdate(userId, { name, email, gender }, { new: true }).select('-password')
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found" });
