@@ -49,7 +49,7 @@ export const userLogin = async (req, res) => {
             ipAddress: ipAddress,
             sessionKey: sessionKey
         }).save();
-        let token = jwt.sign({ userName: user.name, userId: user._id, sessionKey: sessionKey, sessionId: session._id }, myConfig.SECREKEY, { expiresIn: '1h' });
+        let token = jwt.sign({ userName: user.name, userId: user._id, sessionKey: sessionKey, sessionId: session._id }, myConfig.SECRETKEY, { expiresIn: '1h' });
         await User.findByIdAndUpdate(user._id, { $push: { activeSessios: session._id } });
         res.cookie("token", token, { maxAge: 3600000, httpOnly: true })
         res.status(200).send({ message: "Login successful", token: token });

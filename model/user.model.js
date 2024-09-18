@@ -21,6 +21,9 @@ const userSchema = new Schema({
     activeSessios: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Session' }],
     friendRequests: [FriendRequestSchema],
     friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    // otp verificatio part
+    otp: { type: String, minLength: [4, "Otp should have 4 digits minimum!"] },
+    otpExpiry: { type: Date, expires: 60 * 5 }
 })
 
 

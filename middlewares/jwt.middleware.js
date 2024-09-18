@@ -9,7 +9,7 @@ export const jsonWebToken = async (req, res, next) => {
         if (!token) {
             return res.status(401).json({ message: 'No token provided' });
         }
-        const userData = jwt.verify(token, myConfig.SECREKEY);
+        const userData = jwt.verify(token, myConfig.SECRETKEY);
         const sessionAuth = await Session.findById(userData.sessionId);
         const authenticated = sessionAuth.sessionKey === userData.sessionKey;
         if (authenticated) req.user = userData;
